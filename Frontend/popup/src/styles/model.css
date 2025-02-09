@@ -1,0 +1,17 @@
+.main_details{
+    height: 100vh;
+    background: linear-gradient(90deg, rgba(0,0,0,1) 33%, rgba(4,66,9,1) 95%) !important;
+    color:aliceblue;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+
+}
+.main_model_details{
+    background-color: rgba(255, 255, 255, 0.1);
+    height: 85vh;
+    width: 50%;
+    border-radius: 20px;
+
+}
