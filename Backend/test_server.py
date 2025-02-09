@@ -9,6 +9,8 @@ from data_process import getProcessedTrainingData, getProcessedTestingData
 from sklearn.preprocessing import MinMaxScaler
 from keras.src.models import Sequential
 from keras.src.layers import LSTM, Dense, Dropout
+import nltk
+from nltk.sentiment import SentimentIntensityAnalyzer
 
 app = FastAPI()
 
@@ -37,7 +39,7 @@ def train_model():
 
     X_train, y_train = np.array(X_train), np.array(y_train)
     X_train = np.reshape(X_train, (X_train.shape[0], X_train.shape[1], 1))
-
+    print(X_train.shape)
     regressor = Sequential([
         LSTM(units=50, return_sequences=True, input_shape=(X_train.shape[1], 1)),
         Dropout(0.2),
@@ -55,6 +57,10 @@ def train_model():
 
 # Train model at startup
 train_model()
+
+@app.get("/")
+def Welcome():
+    return {"Message": "wrong route!"}
 
 # Function to fetch stock data
 @app.get("/Fetch")
@@ -113,4 +119,66 @@ def FetchPrediction():
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Prediction error: {str(e)}")
 
-print(getFuturePredictions())
+ 
+
+# Download VADER lexicon
+nltk.download("vader_lexicon")
+sia = SentimentIntensityAnalyzer()
+
+NEWS_API_KEY = os.getenv('NEWS_API_KEY')
+# Fetch SPY-related news
+def fetch_spy_news():
+    url = f"https://newsapi.org/v2/everything?q=stocks&language=en&apiKey={NEWS_API_KEY}"
+    response = requests.get(url)
+    
+    if response.status_code != 200:
+        raise HTTPException(status_code=response.status_code, detail="Failed to fetch news data")
+    
+    data = response.json()
+    return data.get("articles", [])
+
+# Analyze sentiment of news articles
+def analyze_sentiment(news_articles):
+    sentiment_results = []
+
+    for article in news_articles:
+        title = article.get("title", "")
+        description = article.get("description", "")
+
+        if title or description:
+            text = f"{title}. {description}"
+            sentiment_score = sia.polarity_scores(text)
+            sentiment_results.append({
+                "title": title,
+                "description": description,
+                "sentiment_score": sentiment_score,
+                "overall_sentiment": "positive" if sentiment_score["compound"] > 0.05 
+                                      else "negative" if sentiment_score["compound"] < -0.05 
+                                      else "neutral"
+            })
+    
+    return sentiment_results
+
+
+@app.get("/Sentiment")
+def get_spy_sentiment():
+    try:
+        news_articles = fetch_spy_news()
+        sentiment_analysis = analyze_sentiment(news_articles)
+
+        sentiments = []
+        for _ in sentiment_analysis:
+            entry = {}
+            for key, val in _.items():
+                if key == "title":
+                    entry[key] = val
+                if key == "overall_sentiment":
+                    entry[key] = val
+            sentiments.append(entry)
+
+
+        return sentiments
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error processing sentiment analysis: {str(e)}")
+
