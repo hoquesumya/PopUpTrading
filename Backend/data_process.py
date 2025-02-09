@@ -6,6 +6,16 @@ raw_data = pd.read_csv('./Backend/spy.csv')
 
 date_processed_data = raw_data[raw_data['Year'] >= 2015]
 date_processed_data = date_processed_data[date_processed_data['Day'] == 1]
+date_processed_data = date_processed_data[['Date','Open','High','Low','Close','Volume']]
 
-def getProcessedData():
+test_data = raw_data[raw_data['Year'] >= 2010]
+test_data = raw_data[raw_data['Year'] < 2015]
+test_data = test_data[test_data['Day'] == 1]
+test_data = test_data[['Date','Open','High','Low','Close','Volume']]
+
+def getProcessedTrainingData():
     return date_processed_data
+
+def getProcessedTestingData():
+    return test_data
+
