@@ -2,9 +2,9 @@ import requests
 from dotenv import load_dotenv
 import os
 from fastapi import FastAPI
+from predict_stock import getFuturePredictions
 
 app = FastAPI()
-
 
 load_dotenv()
 
@@ -35,6 +35,13 @@ def FetchData():
     ticker_data = info["Monthly Time Series"]
     
     return ticker_data
+
+@app.get("/Prediction")
+def FetchPrediction():
+    prediction = getFuturePredictions()
+    return prediction
+    
+
 
 
 

@@ -56,7 +56,18 @@ X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1], 1))
 predicted_stock_price = regressor.predict(X_test)
 predicted_stock_price = scaler.inverse_transform(predicted_stock_price)
 
-plt.plot(predicted_stock_price, color='blue', label='Predicted')
-plt.plot(actual_stock_price, color='red', label='Actual')
-plt.legend()
-plt.show()
+future_predictions = []
+last_known_values = X_test[-1].copy()
+
+for _ in range(12):
+    next_prediction = regressor.predict(last_known_values.reshape(1, 10, 1))
+    future_predictions.append(next_prediction[0, 0])
+    
+    new_input = np.append(last_known_values[1:], next_prediction, axis=0)
+    last_known_values = new_input
+
+future_predictions = np.array(future_predictions).reshape(-1, 1)
+future_predictions = scaler.inverse_transform(future_predictions)
+
+def getFuturePredictions():
+    return future_predictions
