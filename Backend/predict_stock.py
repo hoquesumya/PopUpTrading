@@ -68,8 +68,7 @@ for _ in range(12):
 
 future_predictions = np.array(future_predictions).reshape(-1, 1)
 future_predictions = scaler.inverse_transform(future_predictions)
+future_predictions = np.asarray(future_predictions, dtype="object")
 
 def getFuturePredictions():
     return future_predictions
-
-print(future_predictions)
