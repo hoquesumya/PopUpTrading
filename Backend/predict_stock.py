@@ -71,3 +71,5 @@ future_predictions = scaler.inverse_transform(future_predictions)
 
 def getFuturePredictions():
     return future_predictions
+
+print(future_predictions)
