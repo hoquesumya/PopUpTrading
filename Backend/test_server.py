@@ -92,12 +92,12 @@ def getFuturePredictions():
     last_known_values = X_test[-1].copy()
 
     for _ in range(12):
-        next_prediction = regressor.predict(last_known_values.reshape(1, 10, 1))  # Shape (1,1)
-        next_prediction = next_prediction.flatten()[0]  # Convert to scalar
+        next_prediction = regressor.predict(last_known_values.reshape(1, 10, 1))  
+        next_prediction = next_prediction.flatten()[0]  
 
         future_predictions.append(next_prediction)
 
-        last_known_values = np.append(last_known_values[1:], [[next_prediction]], axis=0)  # Ensure correct shape
+        last_known_values = np.append(last_known_values[1:], [[next_prediction]], axis=0)  
 
     
     future_predictions = np.asarray(future_predictions, dtype="object")
